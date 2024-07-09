@@ -3,7 +3,6 @@ const url = new URLSearchParams(document.location.search);
 const id = url.get("id");
 console.log(id);
 
-
 const viewImage = document.getElementById("viewImage");
 const viewEmail = document.getElementById("viewEmail");
 const viewName = document.getElementById("viewName");
@@ -62,6 +61,7 @@ function employDetails() {
       }
     });
 }
+
 function editViewEmployees() {
   let editMain = document.querySelector(".container-form-edit");
   editMain.style.display = "block";
@@ -106,94 +106,91 @@ function editViewEmployees() {
       const changeBtn = document.getElementById("Changebtn");
 
       function changeBtnClickHandler() {
-        if (!formValidation()) {
-          return; // Stop submission if form is not valid
-        }
+        if (formValidation()) {
+          let salutation = document.getElementById("editviewSalutation").value;
+          let firstName = document.getElementById("editviewFirstName").value;
+          let lastName = document.getElementById("editviewlasttName").value;
+          let email = document.getElementById("editviewEmail").value;
+          let phone = document.getElementById("edit-viewNum").value;
+          let dob = document.getElementById("EditviewDob").value;
+          let qualifications = document.getElementById("EditViewQualification").value;
+          let address = document.getElementById("EditViewAddress").value;
+          let country = document.getElementById("editCountryview").value;
+          let state = document.getElementById("editstateview").value;
+          let city = document.getElementById("editviewcity").value;
+          let gender = maleradio.checked ? "Male" : "Female";
 
-        let salutation = document.getElementById("editviewSalutation").value;
-        let firstName = document.getElementById("editviewFirstName").value;
-        let lastName = document.getElementById("editviewlasttName").value;
-        let email = document.getElementById("editviewEmail").value;
-        let phone = document.getElementById("edit-viewNum").value;
-        let dob = document.getElementById("EditviewDob").value;
-        let qualifications = document.getElementById("EditViewQualification").value;
-        let address = document.getElementById("EditViewAddress").value;
-        let country = document.getElementById("editCountryview").value;
-        let state = document.getElementById("editstateview").value;
-        let city = document.getElementById("editviewcity").value;
-        let gender = maleradio.checked ? "Male" : "Female";
+          function dobFormat(dob) {
+            let dobChange = dob.split("-");
+            return `${dobChange[2]}-${dobChange[1]}-${dobChange[0]}`;
+          }
 
-        function dobFormat(dob) {
-          let dobChange = dob.split("-");
-          return `${dobChange[2]}-${dobChange[1]}-${dobChange[0]}`;
-        }
+          let newFormat = dobFormat(dob);
 
-        let newFormat = dobFormat(dob);
+          var editViewUserDetails = {
+            salutation,
+            firstName,
+            lastName,
+            email,
+            phone,
+            dob: newFormat,
+            gender,
+            qualifications,
+            address,
+            city,
+            state,
+            country,
+            username: data.username,
+            password: data.password,
+            id: data.id,
+          };
 
-        var editViewUserDetails = {
-          salutation,
-          firstName,
-          lastName,
-          email,
-          phone,
-          dob: newFormat,
-          gender,
-          qualifications,
-          address,
-          city,
-          state,
-          country,
-          username: data.username,
-          password: data.password,
-          id: data.id,
-        };
-
-        fetch(`http://localhost:3000/employees/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(editViewUserDetails),
-        })
-          .then((result) => result.json())
-          .then(() => {
-            const imageInput = document.getElementById("inputFile");
-            if (imageInput.files.length > 0) {
-              const editViewFormData = new FormData();
-              editViewFormData.append("avatar", imageInput.files[0]);
-
-              fetch(`http://localhost:3000/employees/${id}/avatar`, {
-                method: "POST",
-                body: editViewFormData,
-              })
-                .then((response) => {
-                  if (!response.ok) {
-                    throw new Error("Failed to upload avatar");
-                  }
-                  return response.json();
-                })
-                .then(() => {
-                  console.log("Avatar uploaded successfully");
-                  employDetails(id); // Refresh employee details
-                  closeForm();
-                })
-                .catch((error) => {
-                  console.error("Error uploading avatar:", error);
-                  employDetails(id); // Refresh employee details
-                  closeForm();
-                })
-                .finally(() => {
-                  removeChangeBtnEventListener();
-                });
-            } else {
-              employDetails(id); 
-              // Refresh employee details
-              closeForm();
-            }
+          fetch(`http://localhost:3000/employees/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(editViewUserDetails),
           })
-          .catch((error) => {
-            console.error("Error updating employee:", error);
-          });
+            .then((result) => result.json())
+            .then(() => {
+              const imageInput = document.getElementById("inputFile");
+              if (imageInput.files.length > 0) {
+                const editViewFormData = new FormData();
+                editViewFormData.append("avatar", imageInput.files[0]);
+
+                fetch(`http://localhost:3000/employees/${id}/avatar`, {
+                  method: "POST",
+                  body: editViewFormData,
+                })
+                  .then((response) => {
+                    if (!response.ok) {
+                      throw new Error("Failed to upload avatar");
+                    }
+                    return response.json();
+                  })
+                  .then(() => {
+                    console.log("Avatar uploaded successfully");
+                    employDetails(id); // Refresh employee details
+                    closeForm();
+                  })
+                  .catch((error) => {
+                    console.error("Error uploading avatar:", error);
+                    employDetails(id); // Refresh employee details
+                    closeForm();
+                  })
+                  .finally(() => {
+                    removeChangeBtnEventListener();
+                  });
+              } else {
+                employDetails(); // Refresh employee details
+                closeForm();
+              }
+            })
+            .catch((error) => {
+              console.error("Error updating employee:", error);
+            });
+        }
       }
 
       changeBtn.addEventListener("click", changeBtnClickHandler);
@@ -231,40 +228,42 @@ document.getElementById("viewEdit").addEventListener("click", () => {
 
 // Save button listener
 document.getElementById("Changebtn").addEventListener("click", () => {
-  let isValid = formValidation();
-  if (isValid) {
-    // changeBtnClickHandler();
-    closeForm();
-    employDetails();
-  }
+  closeForm();
+  employDetails();
 });
 
 employDetails();
 
 function deletEvaluatio() {
   let deletPage = document.querySelector(".container-delet");
+
   deletPage.style.display = "block";
   let overlayMain = document.querySelector(".overlay,.overlay-delet");
+
   overlayMain.style.display = "block";
 }
-
 function cancelDelet() {
   let deletPage = document.querySelector(".container-delet");
+
   deletPage.style.display = "none";
   let overlayMain = document.querySelector(".overlay,.overlay-delet");
+
   overlayMain.style.display = "none";
 }
 
 function deletEvaluation() {
-  const personalId = id;  
+  const personalId = id;
   deletEvaluatio();
 
   const delet = document.getElementById("viewDelete");
+
   delet.addEventListener("click", () => {
     fetch(`http://localhost:3000/employees/${personalId}`, {
       method: "DELETE",
+
       headers: { "content-type": "application/json" },
     });
+
     window.location.href = "index.html";
   });
 }
@@ -286,7 +285,7 @@ function formValidation() {
   };
 
   let genderValidation = (index, message) => {
-    if (!EditViewMale.checked && !EditViewFemale.checked) {
+    if (!male.checked && !female.checked) {
       errorMsg[index].innerHTML = message;
       valid = false;
     } else {
@@ -317,18 +316,21 @@ function formValidation() {
     }
   };
 
-  validitationForm(document.getElementById("editviewSalutation"), 0, "Select salutation");
-  validitationForm(document.getElementById("editviewFirstName"), 1, "First name required");
-  validitationForm(document.getElementById("editviewlasttName"), 2, "Last name required");
-  emailValidation(document.getElementById("editviewEmail"), 3, "Email required");
-  mobileValiadtion(document.getElementById("edit-viewNum"), 4, "Enter your phone number");
-  validitationForm(document.getElementById("EditviewDob"), 5, "Date of birth required");
-  genderValidation(6, "Gender required");
-  validitationForm(document.getElementById("EditViewQualification"), 7, "Enter qualification");
-  validitationForm(document.getElementById("EditViewAddress"), 8, "Enter address");
-  validitationForm(document.getElementById("editCountryview"), 9, "Select country");
-  validitationForm(document.getElementById("editstateview"), 10, "Select state");
-  validitationForm(document.getElementById("editviewcity"), 11, "Select city");
+  validitationForm(salutation, 0, "Select salutation");
+  validitationForm(firstname, 1, "First name required");
+  validitationForm(lastname, 2, "Last name required");
+  emailValidation(email, 3, "Email required");
+  mobileValiadtion(mobilenumber, 4, "Enter your phone number");
+  validitationForm(username, 5, "Username required");
+  validitationForm(password, 6, "Enter password");
+  validitationForm(dateOfBirth, 7, "Date of birth required");
+  genderValidation(8, "Gender is required");
+  validitationForm(qualification, 9, "Enter qualification");
+  validitationForm(address, 10, "Enter address");
+  validitationForm(countrySelector, 11, "Select country");
+  validitationForm(stateSelector, 12, "Select state");
+  validitationForm(citySelector, 13, "Select city");
+  validitationForm(pincode, 14, "Enter pin/Zip");
 
   return valid;
 }

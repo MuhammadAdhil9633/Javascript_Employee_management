@@ -108,7 +108,7 @@ function formValidation() {
     } else {
       errorMsg[index].innerHTML = "Check email fromat";
       valid= false;
- f
+ 
     }
   };
   validitationForm(salutation, 0, "Select salutation"),
@@ -321,48 +321,41 @@ var table;
 readEmployee();
 
 ////////////////////////////////$$$$$$  SHOW DETAILS  $$$$$$$$\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+let perPage = 10; // Define perPage with a default value
+
 function showData(data, perPage) {
   console.log("started");
   let tbody = "";
 
   data.forEach((employ, index) => {
+    console.log(index, "gfdszx");
     const indexx = (currentpage - 1) * perPage + index + 1;
 
-    tbody += `<tr class="text-content ">
-        <th scope="row" class="details ">${indexx}</th>
-        <td class="details name "><img src="http://localhost:3000/employees/${
-      employ.id
-    }/avatar" class="employe-img">${employ.salutation} ${
-      employ.firstName
-    } ${employ.lastName} </td> 
-        <td class="details ">${employ.email}</td>
-        <td class="details ">${employ.phone}</td>
-        <td class="details ">${employ.gender}</td>
-        <td class="details ">${employ.dob}</td>
-        <td class="details ">${employ.country}</td>
-        <td>   <div class="edit-form">
-            <button class="edit-form" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis "></i>
-            </button>
+    tbody += `<tr class="text-content">
+        <th scope="row" class="details">${indexx}</th>
+        <td class="details name"><img src="http://localhost:3000/employees/${employ.id}/avatar" class="employe-img">${employ.salutation} ${employ.firstName} ${employ.lastName}</td>
+        <td class="details">${employ.email}</td>
+        <td class="details">${employ.phone}</td>
+        <td class="details">${employ.gender}</td>
+        <td class="details">${employ.dob}</td>
+        <td class="details">${employ.country}</td>
+        <td>
+          <div class="edit-form">
+            <button class="edit-form" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button>
             <ul class="dropdown-menu edit-buttons" aria-labelledby="dropdownMenuButton1">
-              <a class="edit-text" href="viewform.html?id=${
-                employ.id
-              }"><li class="view"><i class="fa-regular fa-eye eye"></i>View Details</a></li>
-              <a class="edit-text" href="#" onclick=" editEmployee('${
-                employ.id
-              }')"><li class="view edit"><i class="fa-solid fa-pencil"></i>Edit</a></li>
-              <a class="edit-text" href="#" onclick="deletEvaluation('${
-                employ.id
-              }')"><li class="view edit"><i class="fa-solid fa-trash"></i>Delete</a> </li>
+              <li class="view"><a class="edit-text" href="viewform.html?id=${employ.id}"><i class="fa-regular fa-eye eye"></i>View Details</a></li>
+              <li class="view edit"><a class="edit-text" href="#" onclick="editEmployee('${employ.id}')"><i class="fa-solid fa-pencil"></i>Edit</a></li>
+              <li class="view edit"><a class="edit-text" href="#" onclick="deleteEmployee('${employ.id}')"><i class="fa-solid fa-trash"></i>Delete</a></li>
             </ul>
-          </div></i></td>
-        
+          </div>
+        </td>
       </tr>`;
   });
 
   let table = document.getElementById("data-output");
   table.innerHTML = tbody;
 }
-
 
 //////////////////////////////////////////////$$$$$$$$ ADDING DATA  $$$$$$$$$$$$$\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -524,6 +517,7 @@ function deletEvaluation(id) {
 }
 
 /////////////////// edit employeeeeeeeeeeeeeeeform \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
 function editEmployee(id) {
   let editMain = document.querySelector(".container-form-edit");
   editMain.style.display = "block";
@@ -544,10 +538,7 @@ function editEmployee(id) {
       document.getElementById("editlastname").value = data.lastName;
       document.getElementById("emailAddress").value = data.email;
       document.getElementById("editmobilenumber").value = data.phone;
-      document.getElementById("editDob").value = data.dob
-        .split(`-`)
-        .reverse()
-        .join(`-`);
+      document.getElementById("editDob").value = data.dob.split(`-`).reverse().join(`-`);
       document.getElementById("editQualifications").value = data.qualifications;
       document.getElementById("editAddress").value = data.address;
       document.getElementById("editCountry").value = data.country;
@@ -562,7 +553,7 @@ function editEmployee(id) {
 
       if (data.gender.toLowerCase() === "male") {
         maleradio.checked = true;
-      } else {  
+      } else {
         femaleradio.checked = true;
       }
 
@@ -633,30 +624,38 @@ function editEmployee(id) {
                 })
                 .then((data) => {
                   console.log("Avatar uploaded successfully:", data);
-                  updateTable(edituserDetails);
+                  updateTable(edituserDetails, perPage);
                 })
                 .catch((error) => {
                   console.error("Error uploading avatar:", error);
+                  updateTable(edituserDetails, perPage);
                 });
-            } else 
-              updateTable(edituserDetails);
+            } else {
+              updateTable(edituserDetails, perPage);
             }
-            showData(dataArray);
+
+            // Update dataArray with the latest data
+            const indexToUpdate = dataArray.findIndex(emp => emp.id === id);
+            if (indexToUpdate !== -1) {
+              dataArray[indexToUpdate] = edituserDetails;
+            }
+
+            showData(dataArray, perPage);
             pageselected();
           });
       }
 
-      function updateTable(edituserDetails) {
+      function updateTable(edituserDetails, perPage) {
         var indexToReplace = table.findIndex((obj) => obj.id === edituserDetails.id);
         table[indexToReplace] = edituserDetails;
-        showData(table);
+        showData(table, perPage);
         closeForm();
       }
 
       const Changebtn = document.getElementById("Changebtn");
       Changebtn.removeEventListener("click", changeBtnClickHandler); // Ensure the event listener is added only once
       Changebtn.addEventListener("click", () => {
-        let    = EditformValidation();
+        let isvalid = EditformValidation();
         if (isvalid) {
           changeBtnClickHandler();
         }
@@ -670,7 +669,6 @@ function editEmployee(id) {
       };
     });
 }
-
 
 // document.getElementById("Changebtn").addEventListener("click",()=>{
 
